@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import copy
 import csv
-import re
 import sys
-from typing import Dict, Iterator, List
+from typing import Dict, Generator, Iterator, List, Optional
 
 from singer import get_logger, utils
+from singer_encodings.csv import (  # pylint:disable=no-name-in-module
+    get_row_iterator,
+)
 from singer_sdk.streams import Stream
 
 from tap_gn_s3.s3_client import S3Client, SDC_SOURCE_BUCKET_COLUMN, SDC_SOURCE_FILE_COLUMN, SDC_SOURCE_LINENO_COLUMN
@@ -93,18 +95,13 @@ class S3CSVStream(Stream):
         # need to be fixed. The other consequence of this could be larger
         # memory consumption but that's acceptable as well.
         csv.field_size_limit(sys.maxsize)
-
-        # Get CSV reader with the specified delimiter
-        delimiter = self.table_spec.get("delimiter", ",")
-        encoding = self.table_spec.get("encoding", "utf-8")
-        reader = csv.DictReader(
-            s3_file_handle._raw_stream.read().decode(encoding).splitlines(),
-            delimiter=delimiter
-        )
+        iterator = get_row_iterator(
+            s3_file_handle._raw_stream, self.table_spec
+        )  # pylint:disable=protected-access
 
         records_synced = 0
 
-        for row in reader:
+        for row in iterator:
             time_extracted = utils.now()
 
             custom_columns = {

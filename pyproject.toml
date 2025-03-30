@@ -1,12 +1,13 @@
-[tool.poetry]
-name = "tap-gn-s3"
+[project]
+name = "None-tap-gn-s3"
 version = "0.0.1"
 description = "Singer tap for gn-s3, built with the Meltano Singer SDK."
-authors = ["Jesse Ocon <jesse.ocon@growthnirvana.com>"]
-license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "tap_gn_s3"}]
-keywords = ["ELT", "gn-s3"]
+authors = [{ name = "Jesse Ocon", email = "jesse.ocon@growthnirvana.com" }]
+keywords = [
+    "ELT",
+    "gn-s3",
+]
 classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
@@ -17,35 +18,40 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
+license = "Apache-2.0"
+license-files = [ "LICENSE" ]
+requires-python = ">=3.9"
+dependencies = [
+    "singer-sdk~=0.44.3",
+    "requests~=2.32.3",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<3.14"
-singer-sdk = "~=0.44.3"
-requests = "~=2.32.3"
-boto3 = "~=1.34.0"
-backoff = ">=2.0.0"
-more-itertools = "~=10.2.0"
-voluptuous = "~=0.13.1"
-fs-s3fs = {version = "~=1.1.1", optional = true}
+[project.optional-dependencies]
+s3 = [
+    "fs-s3fs~=1.1.1",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = ">=8"
-pytest-cov = ">=4.1.0"
-pytest-mock = ">=3.11.0"
-singer-sdk = {extras = ["testing"], version = "~=0.44.3"}
+[project.scripts]
+# CLI declaration
+tap-gn-s3 = 'tap_gn_s3.tap:Tapgn-s3.cli'
 
-[tool.poetry.extras]
-s3 = ["fs-s3fs"]
-
-[tool.poetry.scripts]
-tap-gn-s3 = "tap_gn_s3.tap:TapGnS3.cli"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    { include-group = "test" },
+]
+test = [
+    "pytest>=8",
+    "singer-sdk[testing]",
+]
+[tool.hatch.build.targets.wheel]
+packages = [
+    "tap_gn_s3",
+]
 
 [tool.pytest.ini_options]
-addopts = ["--durations=10"]
+addopts = [
+    "--durations=10",
+]
 
 [tool.mypy]
 warn_unused_configs = true
@@ -54,7 +60,9 @@ warn_unused_configs = true
 target-version = "py39"
 
 [tool.ruff.lint]
-ignore = ["COM812"]  # missing-trailing-comma
+ignore = [
+    "COM812",  # missing-trailing-comma
+]
 select = ["ALL"]
 
 [tool.ruff.lint.flake8-annotations]
@@ -62,3 +70,45 @@ allow-star-arg-any = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+[build-system]
+requires = [
+    "hatchling>=1,<2",
+]
+build-backend = "hatchling.build"
+[tool.poetry]
+name = "tap-gn-s3"
+version = "0.1.0"
+description = "Singer tap for reading CSV files from S3"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "tap_gn_s3"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+singer-sdk = "^0.34.0"
+boto3 = "^1.34.0"
+backoff = "^1.8.0"
+more-itertools = "^10.2.0"
+singer-encodings = "^0.3.0"
+voluptuous = "^0.13.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.0"
+black = "^23.7.0"
+isort = "^5.12.0"
+mypy = "^1.5.1"
+types-requests = "^2.31.0.20230706"
+types-simplejson = "^3.19.0.20230706"
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+
+

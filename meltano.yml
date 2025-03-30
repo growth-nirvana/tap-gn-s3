@@ -1,6 +1,6 @@
 version: 1
+project_id: tap-gn-s3
 send_anonymous_usage_stats: true
-project_id: "tap-gn-s3"
 default_environment: test
 venv:
   backend: uv
@@ -8,8 +8,8 @@ environments:
 - name: test
 plugins:
   extractors:
-  - name: "tap-gn-s3"
-    namespace: "tap_gn_s3"
+  - name: tap-gn-s3
+    namespace: tap_gn_s3
     pip_url: -e .
     capabilities:
     - state
@@ -17,32 +17,85 @@ plugins:
     - discover
     - about
     - stream-maps
-
-    # TODO: Declare settings and their types here:
-    settings:
-    - name: username
-      label: Username
-      description: The username to use for authentication
-
-    - name: password
-      kind: password
-      label: Password
-      description: The password to use for authentication
-      sensitive: true
-
-    - name: start_date
-      kind: date_iso8601
-      label: Start Date
-      description: Initial date to start extracting data from
+    # settings:
+    # - name: interactive
+    #   kind: boolean
+    #   label: Interactive
+    #   description: Run the tap in interactive mode
+    # - name: aws_session_token
+    #   kind: password
+    #   label: AWS Session Token
+    #   description: AWS session token
+    #   sensitive: true
+    # - name: aws_profile
+    #   kind: string
+    #   label: AWS Profile
+    #   description: AWS profile name
+    # - name: aws_endpoint_url
+    #   kind: string
+    #   label: AWS Endpoint URL
+    #   description: AWS endpoint URL (for non-AWS S3)
+    # - name: table_suffix
+    #   kind: string
+    #   label: Table Suffix
+    #   description: Suffix to append to table names
+    # - name: warning_if_no_files
+    #   kind: boolean
+    #   label: Warning If No Files
+    #   description: Warning instead of error if no files found
+    # - name: s3_proxies
+    #   kind: object
+    #   label: S3 Proxies
+    #   description: Proxy settings for S3
 
     # TODO: Declare required settings here:
     settings_group_validation:
-    - [username, password]
+    - [bucket, aws_access_key_id, aws_secret_access_key, start_date]
 
     # TODO: Declare default configuration values here:
+    settings:
+    - name: bucket
+      kind: string
+    - name: aws_access_key_id
+      kind: string
+      sensitive: true
+    - name: aws_secret_access_key
+      kind: string
+      sensitive: true
+    - name: start_date
+      kind: date_iso8601
+    - name: tables
+      kind: array
+      properties:
+      - name: table_name
+        kind: string
+      - name: search_pattern
+        kind: string
+      - name: key_properties
+        kind: array
+      - name: search_prefix
+        kind: string
+      - name: date_overrides
+        kind: array
+      - name: string_overrides
+        kind: array
+      - name: datatype_overrides
+        kind: object
+      - name: guess_types
+        kind: boolean
+      - name: delimiter
+        kind: string
+      - name: remove_character
+        kind: string
+      - name: encoding
+        kind: string
+      - name: set_empty_values_null
+        kind: boolean
     config:
-      start_date: '2010-01-01T00:00:00Z'
-
+      start_date: '2025-02-18'
+      tables:
+      - table_name: s3_data
+        search_pattern: .csv
   loaders:
   - name: target-jsonl
     variant: andyh1203
