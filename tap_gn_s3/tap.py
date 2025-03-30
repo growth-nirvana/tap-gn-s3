@@ -2,12 +2,35 @@
 
 from __future__ import annotations
 
+import logging.config
+import os
+import json
+
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 
-# TODO: Import your custom stream types here:
-from tap_gn_s3 import streams
+from tap_gn_s3.streams import CSVFileStream
 
+# Default logging config
+DEFAULT_LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "%(levelname)s %(asctime)s %(name)s: %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default"
+        }
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO"
+    }
+}
 
 class TapGnS3(Tap):
     """gn-s3 tap class."""
@@ -97,14 +120,26 @@ class TapGnS3(Tap):
         ),
     ).to_dict()
 
-    def discover_streams(self) -> list[streams.S3CSVStream]:
+    def __init__(self, *args, **kwargs):
+        """Initialize the tap."""
+        # Create logging config file
+        log_dir = os.path.join(os.getcwd(), ".meltano", "run", "tap-gn-s3")
+        os.makedirs(log_dir, exist_ok=True)
+        log_config_path = os.path.join(log_dir, "tap.singer_sdk_logging.json")
+        
+        with open(log_config_path, "w") as f:
+            json.dump(DEFAULT_LOGGING, f)
+
+        super().__init__(*args, **kwargs)
+
+    def discover_streams(self) -> list[CSVFileStream]:
         """Return a list of discovered streams.
 
         Returns:
             A list of discovered streams.
         """
         return [
-            streams.S3CSVStream(self, table_spec)
+            CSVFileStream(self, table_spec)
             for table_spec in self.config["tables"]
         ]
 

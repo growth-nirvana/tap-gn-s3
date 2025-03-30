@@ -1,5 +1,5 @@
 [project]
-name = "None-tap-gn-s3"
+name = "tap-gn-s3"
 version = "0.0.1"
 description = "Singer tap for gn-s3, built with the Meltano Singer SDK."
 readme = "README.md"
@@ -20,33 +20,32 @@ classifiers = [
 ]
 license = "Apache-2.0"
 license-files = [ "LICENSE" ]
-requires-python = ">=3.9"
+requires-python = ">=3.9,<4.0"
 dependencies = [
     "singer-sdk~=0.44.3",
     "requests~=2.32.3",
+    "boto3>=1.34.0",
+    "pendulum>=2.1.0",
+    "more-itertools>=10.2.0",
+    "backoff>=1.8.0",
+    "smart-open (>=7.1.0,<8.0.0)",
 ]
 
 [project.optional-dependencies]
-s3 = [
-    "fs-s3fs~=1.1.1",
+test = [
+    "pytest>=8",
+    "singer-sdk[testing]",
 ]
 
 [project.scripts]
 # CLI declaration
 tap-gn-s3 = 'tap_gn_s3.tap:TapGnS3.cli'
 
-[dependency-groups]
-dev = [
-    { include-group = "test" },
+[build-system]
+requires = [
+    "hatchling>=1,<2",
 ]
-test = [
-    "pytest>=8",
-    "singer-sdk[testing]",
-]
-[tool.hatch.build.targets.wheel]
-packages = [
-    "tap_gn_s3",
-]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 addopts = [
@@ -70,45 +69,10 @@ allow-star-arg-any = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-[build-system]
-requires = [
-    "hatchling>=1,<2",
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "tap_gn_s3",
 ]
-build-backend = "hatchling.build"
-[tool.poetry]
-name = "tap-gn-s3"
-version = "0.1.0"
-description = "Singer tap for reading CSV files from S3"
-authors = ["Your Name <your.email@example.com>"]
-readme = "README.md"
-packages = [{include = "tap_gn_s3"}]
-
-[tool.poetry.dependencies]
-python = ">=3.8,<3.12"
-singer-sdk = "^0.34.0"
-boto3 = "^1.34.0"
-backoff = "^1.8.0"
-more-itertools = "^10.2.0"
-singer-encodings = "^0.3.0"
-voluptuous = "^0.13.1"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-pytest-cov = "^4.1.0"
-pytest-mock = "^3.11.0"
-black = "^23.7.0"
-isort = "^5.12.0"
-mypy = "^1.5.1"
-types-requests = "^2.31.0.20230706"
-types-simplejson = "^3.19.0.20230706"
-
-[tool.black]
-line-length = 100
-target-version = ["py38"]
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 100
 
 
