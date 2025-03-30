@@ -96,6 +96,7 @@ plugins:
       tables:
       - table_name: s3_data
         search_pattern: .csv
+      bucket: gn-prod-acc-288427885-impelled-audacious
   loaders:
   - name: target-jsonl
     variant: andyh1203

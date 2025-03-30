@@ -33,7 +33,7 @@ s3 = [
 
 [project.scripts]
 # CLI declaration
-tap-gn-s3 = 'tap_gn_s3.tap:Tapgn-s3.cli'
+tap-gn-s3 = 'tap_gn_s3.tap:TapGnS3.cli'
 
 [dependency-groups]
 dev = [
