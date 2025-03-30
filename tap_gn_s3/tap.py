@@ -9,7 +9,7 @@ from singer_sdk import typing as th  # JSON schema typing helpers
 from tap_gn_s3 import streams
 
 
-class Tapgn-s3(Tap):
+class TapGnS3(Tap):
     """gn-s3 tap class."""
 
     name = "tap-gn-s3"
@@ -17,53 +17,97 @@ class Tapgn-s3(Tap):
     # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
         th.Property(
-            "auth_token",
+            "aws_access_key_id",
             th.StringType,
-            required=True,
-            secret=True,  # Flag config as protected.
-            title="Auth Token",
-            description="The token to authenticate against the API service",
+            description="AWS access key ID",
+            secret=True,
         ),
         th.Property(
-            "project_ids",
-            th.ArrayType(th.StringType),
+            "aws_secret_access_key",
+            th.StringType,
+            description="AWS secret access key",
+            secret=True,
+        ),
+        th.Property(
+            "aws_session_token",
+            th.StringType,
+            description="AWS session token",
+            secret=True,
+        ),
+        th.Property(
+            "aws_profile",
+            th.StringType,
+            description="AWS profile name",
+        ),
+        th.Property(
+            "aws_endpoint_url",
+            th.StringType,
+            description="AWS endpoint URL (for non-AWS S3)",
+        ),
+        th.Property(
+            "bucket",
+            th.StringType,
             required=True,
-            title="Project IDs",
-            description="Project IDs to replicate",
+            description="S3 bucket name",
         ),
         th.Property(
             "start_date",
             th.DateTimeType,
+            required=True,
             description="The earliest record date to sync",
         ),
         th.Property(
-            "api_url",
-            th.StringType,
-            title="API URL",
-            default="https://api.mysample.com",
-            description="The url for the API service",
+            "tables",
+            th.ArrayType(
+                th.ObjectType(
+                    th.Property("table_name", th.StringType, required=True),
+                    th.Property("search_pattern", th.StringType, required=True),
+                    th.Property("key_properties", th.ArrayType(th.StringType)),
+                    th.Property("search_prefix", th.StringType),
+                    th.Property("date_overrides", th.ArrayType(th.StringType)),
+                    th.Property("string_overrides", th.ArrayType(th.StringType)),
+                    th.Property("datatype_overrides", th.ObjectType()),
+                    th.Property("guess_types", th.BooleanType),
+                    th.Property("delimiter", th.StringType),
+                    th.Property("remove_character", th.StringType),
+                    th.Property("encoding", th.StringType),
+                    th.Property("set_empty_values_null", th.BooleanType),
+                )
+            ),
+            required=True,
+            description="Table configurations",
         ),
         th.Property(
-            "user_agent",
+            "table_suffix",
             th.StringType,
-            description=(
-                "A custom User-Agent header to send with each request. Default is "
-                "'<tap_name>/<tap_version>'"
+            description="Suffix to append to table names",
+        ),
+        th.Property(
+            "warning_if_no_files",
+            th.BooleanType,
+            description="Warning instead of error if no files found",
+        ),
+        th.Property(
+            "s3_proxies",
+            th.ObjectType(
+                th.Property("http", th.StringType),
+                th.Property("https", th.StringType),
             ),
+            description="Proxy settings for S3",
         ),
     ).to_dict()
 
-    def discover_streams(self) -> list[streams.gn-s3Stream]:
+    def discover_streams(self) -> list[streams.S3CSVStream]:
         """Return a list of discovered streams.
 
         Returns:
             A list of discovered streams.
         """
         return [
-            streams.GroupsStream(self),
-            streams.UsersStream(self),
+            streams.S3CSVStream(self, table_spec)
+            for table_spec in self.config["tables"]
         ]
 
 
 if __name__ == "__main__":
-    Tapgn-s3.cli()
+    TapGnS3.cli()

@@ -1,13 +1,12 @@
-[project]
-name = "None-tap-gn-s3"
+[tool.poetry]
+name = "tap-gn-s3"
 version = "0.0.1"
 description = "Singer tap for gn-s3, built with the Meltano Singer SDK."
+authors = ["Jesse Ocon <jesse.ocon@growthnirvana.com>"]
+license = "Apache-2.0"
 readme = "README.md"
-authors = [{ name = "Jesse Ocon", email = "jesse.ocon@growthnirvana.com" }]
-keywords = [
-    "ELT",
-    "gn-s3",
-]
+packages = [{include = "tap_gn_s3"}]
+keywords = ["ELT", "gn-s3"]
 classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
@@ -18,40 +17,35 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-license = "Apache-2.0"
-license-files = [ "LICENSE" ]
-requires-python = ">=3.9"
-dependencies = [
-    "singer-sdk~=0.44.3",
-    "requests~=2.32.3",
-]
 
-[project.optional-dependencies]
-s3 = [
-    "fs-s3fs~=1.1.1",
-]
+[tool.poetry.dependencies]
+python = ">=3.9,<3.14"
+singer-sdk = "~=0.44.3"
+requests = "~=2.32.3"
+boto3 = "~=1.34.0"
+backoff = ">=2.0.0"
+more-itertools = "~=10.2.0"
+voluptuous = "~=0.13.1"
+fs-s3fs = {version = "~=1.1.1", optional = true}
 
-[project.scripts]
-# CLI declaration
-tap-gn-s3 = 'tap_gn_s3.tap:Tapgn-s3.cli'
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8"
+pytest-cov = ">=4.1.0"
+pytest-mock = ">=3.11.0"
+singer-sdk = {extras = ["testing"], version = "~=0.44.3"}
 
-[dependency-groups]
-dev = [
-    { include-group = "test" },
-]
-test = [
-    "pytest>=8",
-    "singer-sdk[testing]",
-]
-[tool.hatch.build.targets.wheel]
-packages = [
-    "tap_gn_s3",
-]
+[tool.poetry.extras]
+s3 = ["fs-s3fs"]
+
+[tool.poetry.scripts]
+tap-gn-s3 = "tap_gn_s3.tap:TapGnS3.cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = [
-    "--durations=10",
-]
+addopts = ["--durations=10"]
 
 [tool.mypy]
 warn_unused_configs = true
@@ -60,9 +54,7 @@ warn_unused_configs = true
 target-version = "py39"
 
 [tool.ruff.lint]
-ignore = [
-    "COM812",  # missing-trailing-comma
-]
+ignore = ["COM812"]  # missing-trailing-comma
 select = ["ALL"]
 
 [tool.ruff.lint.flake8-annotations]
@@ -70,9 +62,3 @@ allow-star-arg-any = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[build-system]
-requires = [
-    "hatchling>=1,<2",
-]
-build-backend = "hatchling.build"
