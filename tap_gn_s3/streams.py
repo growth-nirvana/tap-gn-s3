@@ -34,9 +34,9 @@ class CSVFileStream(Stream):
     """Stream for reading CSV files from S3."""
 
     # Add replication key for state management
-    replication_key = "_last_modified"
+    replication_key = "_gn_last_modified"
     is_timestamp_replication_key = True
-    primary_keys = ["_file_path", "_row_number"]  # Add row_number to uniquely identify each record
+    primary_keys = ["_gn_file_path", "_gn_row_number"]  # Add row_number to uniquely identify each record
 
     def __init__(
         self,
@@ -184,8 +184,11 @@ class CSVFileStream(Stream):
                 SDC_SOURCE_FILE_COLUMN: Property(SDC_SOURCE_FILE_COLUMN, StringType, required=True),
                 SDC_SOURCE_LINENO_COLUMN: Property(SDC_SOURCE_LINENO_COLUMN, IntegerType, required=True),
                 SDC_EXTRA_COLUMN: Property(SDC_EXTRA_COLUMN, ArrayType(StringType)),
-                # Add _last_modified for replication key
-                "_last_modified": Property("_last_modified", DateTimeType, required=True),
+                # Add _gn_last_modified for replication key
+                "_gn_last_modified": Property("_gn_last_modified", DateTimeType, required=True),
+                # Add primary key fields with _gn prefix
+                "_gn_file_path": Property("_gn_file_path", StringType, required=True),
+                "_gn_row_number": Property("_gn_row_number", IntegerType, required=True),
             }
 
             # Add data fields with sanitized names
@@ -288,7 +291,9 @@ class CSVFileStream(Stream):
                             SDC_SOURCE_FILE_COLUMN: csv_path,  # Use full path including ZIP structure
                             SDC_SOURCE_LINENO_COLUMN: row_number,
                             SDC_EXTRA_COLUMN: extra_columns,
-                            "_last_modified": last_modified,
+                            "_gn_last_modified": last_modified,
+                            "_gn_file_path": csv_path,
+                            "_gn_row_number": row_number,
                             **sanitized_row,
                         }
             else:
@@ -306,6 +311,8 @@ class CSVFileStream(Stream):
                         SDC_SOURCE_FILE_COLUMN: file_path,
                         SDC_SOURCE_LINENO_COLUMN: row_number,
                         SDC_EXTRA_COLUMN: extra_columns,
-                        "_last_modified": last_modified,
+                        "_gn_last_modified": last_modified,
+                        "_gn_file_path": file_path,
+                        "_gn_row_number": row_number,
                         **sanitized_row,
                     }
